@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang Web Mã Hóa & Giải Mã Chuyên S sâu - He He</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+        }
+        h2 { text-align: center; color: #38bdf8; margin-bottom: 25px; }
+        
+        .tab-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            background-color: #1e293b;
+            color: #94a3b8;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+        .tab-btn.active {
+            background-color: #0284c7;
+            color: #fff;
+            border-color: #0284c7;
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        label { display: block; margin-top: 15px; font-weight: bold; color: #cbd5e1; }
+        textarea, select {
+            width: 100%;
+            padding: 12px;
+            margin-top: 8px;
+            background-color: #1e293b;
+            color: #fff;
+            border: 1px solid #475569;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-family: monospace;
+        }
+        textarea { height: 120px; resize: vertical; }
+        
+        button.action-btn {
+            width: 100%;
+            padding: 12px;
+            margin-top: 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            transition: 0.2s;
+        }
+        .btn-enc { background-color: #10b981; color: #fff; }
+        .btn-enc:hover { background-color: #059669; }
+        
+        .btn-dec { background-color: #8b5cf6; color: #fff; }
+        .btn-dec:hover { background-color: #7c3aed; }
+
+        .btn-copy { 
+            background-color: #f59e0b; 
+            color: #000; 
+            margin-top: 10px; 
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-copy:hover { background-color: #d97706; }
+
+        .output-box {
+            position: relative;
+            margin-top: 20px;
+            background: #1e293b;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #475569;
+        }
+        .output-text {
+            word-break: break-all;
+            font-family: monospace;
+            color: #38bdf8;
+            min-height: 50px;
+            max-height: 150px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Hệ Thống Mã Hóa & Giải Mã Chuyên Sâu</h2>
+
+    <!-- Các nút chuyển Tab -->
+    <div class="tab-buttons">
+        <button class="tab-btn active" onclick="switchTab(0)">1. Mã Hóa Chuyên Sâu</button>
+        <button class="tab-btn" onclick="switchTab(1)">2. Giải Mã Đa Năng</button>
+    </div>
+
+    <!-- TAB 1: MÃ HÓA CHUYÊN SÂU -->
+    <div class="tab-content active" id="tab0">
+        <label for="plainInput">Nhập văn bản gốc cần mã hóa:</label>
+        <textarea id="plainInput" placeholder="Nhập chữ vào đây..."></textarea>
+
+        <label for="encAlgo">Chọn kiểu mã hóa chuyên sâu:</label>
+        <select id="encAlgo">
+            <option value="base64">Base64</option>
+            <option value="hex">Hexadecimal (Hex)</option>
+            <option value="binary">Mã Nhị Phân (Binary)</option>
+            <option value="url">URL Encode</option>
+            <option value="reverse">Đảo ngược chuỗi (Reverse text)</option>
+            <option value="rot13">ROT13 (Dịch ký tự)</option>
+        </select>
+
+        <button class="action-btn btn-enc" onclick="runEncode()">Tiến Hành Mã Hóa</button>
+
+        <div class="output-box">
+            <label>Kết quả mã hóa:</label>
+            <div id="encResult" class="output-text">Chưa có kết quả...</div>
+            <button class="btn-copy" onclick="copyText('encResult')">Sao Chép Kết Quả</button>
+        </div>
+    </div>
+
+    <!-- TAB 2: GIẢI MÃ ĐA NĂNG -->
+    <div class="tab-content" id="tab1">
+        <label for="cipherInput">Nhập đoạn mã bất kỳ cần giải:</label>
+        <textarea id="cipherInput" placeholder="Dán mã nhị phân, hex, base64... vào đây"></textarea>
+
+        <label for="decAlgo">Chọn thuật toán giải mã (hoặc thử đoán):</label>
+        <select id="decAlgo">
+            <option value="auto">Tự động nhận diện (Auto Detect)</option>
+            <option value="base64">Base64 Decode</option>
+            <option value="hex">Hex Decode</option>
+            <option value="binary">Binary Decode</option>
+            <option value="url">URL Decode</option>
+            <option value="reverse">Đảo ngược lại chuỗi</option>
+            <option value="rot13">ROT13 Decode</option>
+        </select>
+
+        <button class="action-btn btn-dec" onclick="runDecode()">Giải Mã Ngay</button>
+
+        <div class="output-box">
+            <label>Kết quả văn bản gốc:</label>
+            <div id="decResult" class="output-text">Chưa có kết quả...</div>
+            <button class="btn-copy" onclick="copyText('decResult')">Sao Chép Kết Quả</button>
+        </div>
+    </div>
+
+    <script>
+        // Chuyển tab giao diện
+        function switchTab(index) {
+            const buttons = document.querySelectorAll('.tab-btn');
+            const contents = document.querySelectorAll('.tab-content');
+            
+            buttons.forEach((btn, i) => {
+                btn.classList.toggle('active', i === index);
+                contents[i].classList.toggle('active', i === index);
+            });
+        }
+
+        // Các hàm thuật toán phụ trợ
+        function toBinary(str) {
+            return Array.from(str).map(c => c.charCodeAt(0).toString(2).padStart(8, '0')).join(' ');
+        }
+        function fromBinary(bin) {
+            return bin.trim().split(/\s+/).map(b => String.fromCharCode(parseInt(b, 2))).join('');
+        }
+
+        function toHex(str) {
+            return Array.from(str).map(c => c.charCodeAt(0).toString(16).padStart(2, '0')).join(' ');
+        }
+        function fromHex(hex) {
+            return hex.trim().split(/\s+/).map(h => String.fromCharCode(parseInt(h, 16))).join('');
+        }
+
+        function rot13(str) {
+            return str.replace(/[a-zA-Z]/g, function(c) {
+                let code = c.charCodeAt(0);
+                let shift = (code >= 65 && code <= 90) ? 65 : 97;
+                return String.fromCharCode(((code - shift + 13) % 26) + shift);
+            });
+        }
+
+        // Xử lý Mã Hóa
+        function runEncode() {
+            const val = document.getElementById('plainInput').value;
+            const algo = document.getElementById('encAlgo').value;
+            let res = '';
+
+            try {
+                if (algo === 'base64') res = btoa(unescape(encodeURIComponent(val)));
+                else if (algo === 'hex') res = toHex(val);
+                else if (algo === 'binary') res = toBinary(val);
+                else if (algo === 'url') res = encodeURIComponent(val);
+                else if (algo === 'reverse') res = val.split('').reverse().join('');
+                else if (algo === 'rot13') res = rot13(val);
+            } catch (e) {
+                res = "Lỗi mã hóa dữ liệu!";
+            }
+            document.getElementById('encResult').innerText = res;
+        }
+
+        // Xử lý Giải Mã
+        function runDecode() {
+            const val = document.getElementById('cipherInput').value.trim();
+            const algo = document.getElementById('decAlgo').value;
+            let res = '';
+
+            try {
+                if (algo === 'auto') {
+                    // Thử đoán các kiểu thông dụng
+                    let decodedTry = "";
+                    // Thử Base64 trước
+                    try {
+                        decodedTry = decodeURIComponent(escape(atob(val)));
+                        res = "[Phát hiện Base64]: " + decodedTry;
+                        document.getElementById('decResult').innerText = res;
+                        return;
+                    } catch(e) {}
+
+                    // Thử Hex
+                    try {
+                        decodedTry = fromHex(val);
+                        if (/^[\x20-\x7E]*$/.test(decodedTry) && decodedTry.length > 0) {
+                            res = "[Phát hiện Hex]: " + decodedTry;
+                            document.getElementById('decResult').innerText = res;
+                            return;
+                        }
+                    } catch(e) {}
+
+                    // Thử Binary
+                    try {
+                        decodedTry = fromBinary(val);
+                        if (/^[\x20-\x7E]*$/.test(decodedTry) && decodedTry.length > 0) {
+                            res = "[Phát hiện Binary]: " + decodedTry;
+                            document.getElementById('decResult').innerText = res;
+                            return;
+                        }
+                    } catch(e) {}
+
+                    res = "Không tự động nhận diện được loại mã hóa này. Hãy chọn thủ công trong danh sách!";
+                } else if (algo === 'base64') {
+                    res = decodeURIComponent(escape(atob(val)));
+                } else if (algo === 'hex') {
+                    res = fromHex(val);
+                } else if (algo === 'binary') {
+                    res = fromBinary(val);
+                } else if (algo === 'url') {
+                    res = decodeURIComponent(val);
+                } else if (algo === 'reverse') {
+                    res = val.split('').reverse().join('');
+                } else if (algo === 'rot13') {
+                    res = rot13(val);
+                }
+            } catch (e) {
+                res = "Lỗi giải mã! Định dạng đầu vào không khớp với thuật toán đã chọn.";
+            }
+
+            document.getElementById('decResult').innerText = res;
+        }
+
+        // Hàm sao chép nhanh gọn
+        function copyText(elementId) {
+            const text = document.getElementById(elementId).innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                alert("Đã sao chép kết quả thành công! He he.");
+            }).catch(err => {
+                alert("Sao chép thất bại!");
+            });
+        }
+    </script>
+
+</body>
+</html>
